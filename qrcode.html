@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<title>QR code</title>
-			<meta charset="utf-8">
+			<meta charset="UTF-8">
 			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
 			<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -15,7 +15,7 @@
 	<body>
 		<div class="container_0_46vw">
 			<div class="mx_11vw mt_9vw mb_4_63vw fs_7vw_b">
-				<div class="mt_6vw"><input id="cellphone" type="tel" class="validate col s8" style="height:10vw; margin-bottom: 0;"></div>
+				<div class="mt_6vw"><input id="invoice" class="validate col s8" style="height:10vw; margin-bottom: 0;"></div>
 				<a id="modallink" class="div_btn_10 bgcolor_f44336 width_30vw height_25vw fs_8vw_n fc_fff center-align mx_auto waves-effect waves-light btn modal-trigger" style="line-height: 25vw; margin-top: 5vw;" href="#modal">掃描去</a>
 			</div>
 		</div>
@@ -28,32 +28,60 @@
 						<script type="text/javascript">
 							let scanner = new Instascan.Scanner({ video: document.getElementById('preview'), mirror: false });
 							scanner.addListener('scan', function (content) {
-								document.getElementById("cellphone").value = content;
-								$('#modal').modal('close');
+								var isinvoice = false;
+								console.log(content.length);
+								if (content.length >= 77) {	//判斷是否為統一發票
+									console.log(content.substr(0, 2));
+									if (!$.isNumeric(content.substr(0, 2))) {
+										console.log(content.substr(2, 8));
+										if ($.isNumeric(content.substr(2, 8))) {
+											console.log(content.substr(10, 7));
+											if ($.isNumeric(content.substr(10, 7))) {
+												console.log(content.substr(17, 4));
+												if ($.isNumeric(content.substr(17, 4))) {
+														isinvoice = true;			
+												}
+											}
+										}
+									}
+								}
+								if (isinvoice) {
+									document.getElementById("invoice").value = content.substr(0, 10);
+								}
+								else {
+									document.getElementById("invoice").value = "";
+								}
 								scanner.stop();
+								$('#modal').modal('close');
 							});	
 						</script>
 					</div>
 			</div>
 		</div>
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-	<script type="text/javascript">
-		$( document ).ready(function() {
-		  $('.modal').modal({
-				ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
-					Instascan.Camera.getCameras().then(function (cameras) {
-						if (cameras.length > 0) {
-							scanner.start(cameras[0]);
-						} else {
-							console.error('No cameras found.');
-						}
-					}).catch(function (e) {
-						console.error(e);
-					});
-				}
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+		<script type="text/javascript">
+			$( document ).ready(function() {
+				$('.modal').modal({
+					ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
+						Instascan.Camera.getCameras().then(function (cameras) {
+							if (cameras.length > 0) {
+								if (cameras.length > 1) {
+									scanner.start(cameras[1]);	
+								}
+								else {
+									scanner.start(cameras[0])
+								}
+							} 
+							else {
+								console.error('No cameras found.');
+							}
+						}).catch(function (e) {
+							console.error(e);
+						});
+					}
+				});
 			});
-		});
-	</script>
+		</script>
 	</body>
 </html>
