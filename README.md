@@ -1,0 +1,3 @@
+# HTML5_QR_Code_scanning_for_phone_camera
+
+利用`instascan`製作的簡單的QR Code掃描網頁
